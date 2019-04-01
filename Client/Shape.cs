@@ -8,6 +8,9 @@ namespace Client
 {
     public class Shape
     {
+        public static int NumShape = 1;
+        private string name;
+
         private const float FOV = (float)Math.PI / 2.0f; // alpha = 90deg FOV
         private float PROJECTION_PROPORTIONALITY_COMMON_DENOMINATOR = (float)Math.Tan(FOV / 2.0f); // tan(alpha / 2)
 
@@ -20,9 +23,17 @@ namespace Client
         private Matrix vertices;
         private Graph vertexConnections;
 
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+        }
+
         public int NumberOfVertices {
             get {
-                return numVertices;
+                return vertices.Cols;
             }
         }
         public Matrix Vertices {
@@ -48,9 +59,9 @@ namespace Client
                 if (splitWhitespace[i] != "")
                 {
                     string section = splitWhitespace[i];
-                    if (splitWhitespace[i].Contains("/"))
+                    if (section.Contains("/"))
                     {
-                        section = splitWhitespace[i].Split('/')[0];
+                        section = section.Split('/')[0];
                     }
                     data.Add(section);
                 }
@@ -61,6 +72,8 @@ namespace Client
 
         public Shape(string file) // pass in a string pointing to an object file, which we read for points & connections
         {
+            name = file;
+
             string line;
             int lineNum = 1;
 
@@ -72,17 +85,21 @@ namespace Client
             while ((line = objFile.ReadLine()) != null) // for each line that exists (not null)
             {
                 string[] parsed = ParseLine(line); // parse line data
-                if (parsed.Length == 4)
+                
+                if (parsed.Length > 0)
                 {
                     if (parsed[0] == "v") // for each vertex
                     {
-                        try
+                        if (parsed.Length == 4)
                         {
-                            coordinates.Add(new float[3] { float.Parse(parsed[parsed.Length - 3]), float.Parse(parsed[parsed.Length - 2]), float.Parse(parsed[parsed.Length - 1]) });
-                        }
-                        catch (Exception)
-                        {
-                            throw new ObjectFormatException($"Could not parse floating-point vertex coordinate on line {lineNum}.");
+                            try
+                            {
+                                coordinates.Add(new float[3] { float.Parse(parsed[parsed.Length - 3]), float.Parse(parsed[parsed.Length - 2]), float.Parse(parsed[parsed.Length - 1]) });
+                            }
+                            catch (Exception)
+                            {
+                                throw new ObjectFormatException($"Could not parse floating-point vertex coordinate on line {lineNum}.");
+                            }
                         }
                     }
                     else if (parsed[0] == "f")
@@ -106,8 +123,10 @@ namespace Client
                             }
                         }
 
-                        connectionGraph[int.Parse(parsedIndices[0]) - 1, int.Parse(parsedIndices[1]) - 1] = true;
-                        connectionGraph[int.Parse(parsedIndices[0]) - 1, int.Parse(parsedIndices[2]) - 1] = true;
+                        for (int i = 1; i < parsedIndices.Length; i++)
+                        {
+                            connectionGraph[int.Parse(parsedIndices[0]) - 1, int.Parse(parsedIndices[i]) - 1] = true;
+                        }
                     }
                 }
                 lineNum++;
@@ -120,6 +139,8 @@ namespace Client
         }
         public Shape(float[,] vertices, bool[,] adjacency) // pass in an array of floats - [number of vertices, number of dimensions per vertex]
         {
+            name = (NumShape++).ToString();
+
             if (vertices.GetLength(1) != 3)
                 throw new MatrixDimensionException($"Shapes must be 3-dimensional; is {vertices.GetLength(1)}-dimensional.");
 
@@ -195,6 +216,11 @@ is ({vertices.Rows}x{vertices.Cols})");
             }
 
             return new Shape(projectedVertices, vertexConnections.Adjacency);
+        }
+
+        public override string ToString()
+        {
+            return name;
         }
     }
 

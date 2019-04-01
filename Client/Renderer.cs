@@ -105,7 +105,7 @@ namespace Client
 
                 foreach (var shape in shapes)
                 {
-                    shape.Rotate(0.13f, null, 1.0f);
+                    //shape.Rotate(0.13f, null, 1.0f);
                     shape.Translate(velocity_x, velocity_y, velocity_z);
                 }
 
@@ -122,7 +122,7 @@ namespace Client
 
         private void Renderer_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == exitKey) Close();
+            if (e.KeyCode == exitKey) Dispose();
 
             if (e.KeyCode == forwardKey) isForwardKeyActive = true;
             if (e.KeyCode == backwardKey) isBackwardKeyActive = true;
@@ -160,6 +160,11 @@ namespace Client
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             Gl.DepthMask(false);
             Gl.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+        }
+
+        private void glRenderer_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void glRenderer_Render(object sender, GlControlEventArgs e)

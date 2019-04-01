@@ -47,6 +47,7 @@
             this.glRenderer.TabIndex = 1;
             this.glRenderer.ContextCreated += new System.EventHandler<OpenGL.GlControlEventArgs>(this.glRenderer_ContextCreated);
             this.glRenderer.Render += new System.EventHandler<OpenGL.GlControlEventArgs>(this.glRenderer_Render);
+            this.glRenderer.Load += new System.EventHandler(this.glRenderer_Load);
             // 
             // Renderer
             // 
